@@ -24,6 +24,8 @@ public class Projection : MonoBehaviour
     [SerializeField]
     private Slider zwSlider;
 
+    private Color distanceColor = new Color(0.125f, 0.125f, 0.125f, 1); 
+
     // 4D hypercube vertices
     Vector4[] vertices = new Vector4[] 
     { 
@@ -60,27 +62,23 @@ public class Projection : MonoBehaviour
         { 4, 12 }, { 5, 13 }, { 6, 14 }, { 7, 15 } // Connecting the two cubes
     };
 
-    public Vector2 ProjectOntoSubspace(Vector4 P, Vector4 v, Vector4 w) 
+    public Vector2 ProjectOntoSubspace(Vector4 P) 
     {
-        float Pv = Vector4.Dot(P, v);
-        float Pw = Vector4.Dot(P, w);
+        return new Vector2(P.x, P.y);
+    }
 
-        float v2 = Vector4.Dot(v, v);
-        float w2 = Vector4.Dot(w, w);
-
-        return new Vector2(Pv / v2, Pw / w2);
+    public float DistanceFromViewport(Vector4 point) 
+    {
+        return (new Vector2(point.z, point.w) + Vector2.one).magnitude;
     }
 
     private void Start() 
     {
-        //Refresh();
+        Refresh();
     }
 
     private void RenderVertices(Vector4[] vertices, int[,] edges, Color color) 
     {
-        Vector4 subspaceV = new Vector4(1, 0, 0, 0);
-        Vector4 subspaceW = new Vector4(0, 1, 0, 0);
-
         Vector4[] rotatedVertices = vertices
             .AsEnumerable()
             .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.XY, xySlider.value))
@@ -93,18 +91,26 @@ public class Projection : MonoBehaviour
 
         Vector2[] projectedVertices = rotatedVertices
             .AsEnumerable()
-            .Select(vertex => ProjectOntoSubspace(vertex, subspaceV, subspaceW))
+            .Select(vertex => ProjectOntoSubspace(vertex))
             .ToArray();
 
         for (int i = 0; i < projectedVertices.Length; i++)
         {
-            InstantiateVertex(projectedVertices[i], color);
+            float distance = DistanceFromViewport(rotatedVertices[i]);
+            InstantiateVertex(projectedVertices[i], GetVertexColor(color, distance), distance);
         }
         
         for (int i = 0; i < edges.GetLength(0); i++)
         {
-            InstantiateEdge(projectedVertices[edges[i, 0]], projectedVertices[edges[i, 1]], color);
+            float distanceA = DistanceFromViewport(rotatedVertices[edges[i, 0]]);
+            float distanceB = DistanceFromViewport(rotatedVertices[edges[i, 1]]);
+            InstantiateEdge(projectedVertices[edges[i, 0]], projectedVertices[edges[i, 1]], 
+            GetVertexColor(color, distanceA), GetVertexColor(color, distanceB), Mathf.Min(distanceA, distanceB));
         }
+    }
+    private Color GetVertexColor(Color color, float distance) 
+    {
+        return Color.Lerp(color, distanceColor, 1 - 1f / (distance + 1));
     }
 
     public void Refresh() 
@@ -119,18 +125,22 @@ public class Projection : MonoBehaviour
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 1, 0, 0) }, new int[,] { {0, 1} }, Color.green);
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 1, 0) }, new int[,] { {0, 1} }, Color.blue);
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 0, 1) }, new int[,] { {0, 1} }, Color.yellow);
+
+        InstantiateVertex(Vector2.zero, Color.black, DistanceFromViewport(Vector4.zero), 1);
     }
 
-    private void InstantiateVertex(Vector2 vertex, Color color) 
+    private void InstantiateVertex(Vector2 vertex, Color color, float distance, int orderIncrease = 0) 
     {
         GameObject point = Instantiate(pointPrefab, (Vector3)vertex, Quaternion.identity);
         point.transform.SetParent(transform);
 
         SpriteRenderer spriteRenderer = point.GetComponent<SpriteRenderer>();
         spriteRenderer.color = color;
+
+        spriteRenderer.sortingOrder = (int)(-distance * 1000) + orderIncrease;
     }
 
-    private void InstantiateEdge(Vector2 a, Vector2 b, Color color) 
+    private void InstantiateEdge(Vector2 a, Vector2 b, Color fromColor, Color toColor, float distance) 
     {
         GameObject line = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
         line.transform.SetParent(transform);
@@ -141,7 +151,9 @@ public class Projection : MonoBehaviour
         lineRenderer.SetPosition(0, lines[0]);
         lineRenderer.SetPosition(1, lines[1]);
 
-        lineRenderer.startColor = color;
-        lineRenderer.endColor = color;
+        lineRenderer.startColor = fromColor;
+        lineRenderer.endColor = toColor;
+
+        lineRenderer.sortingOrder = (int)(-distance * 1000);
     }
 }
