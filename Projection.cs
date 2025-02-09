@@ -35,7 +35,7 @@ public class Projection : MonoBehaviour
         new Vector4(1, 1, 1, -1), // 5
         new Vector4(1, -1, 1, -1), // 6
         new Vector4(-1, -1, 1, -1),  // 7
-        
+    
         new Vector4(-1, -1, -1, 1), // 8
         new Vector4(1, -1, -1, 1), // 9
         new Vector4(1, 1, -1, 1), // 10
@@ -76,7 +76,7 @@ public class Projection : MonoBehaviour
         //Refresh();
     }
 
-    public void Refresh() 
+    private void RenderVertices(Vector4[] vertices, int[,] edges, Color color) 
     {
         Vector4 subspaceV = new Vector4(1, 0, 0, 0);
         Vector4 subspaceW = new Vector4(0, 1, 0, 0);
@@ -91,11 +91,6 @@ public class Projection : MonoBehaviour
             .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.ZW, zwSlider.value))
             .ToArray();
 
-        foreach (Transform child in transform) 
-        {
-            Destroy(child.gameObject);
-        }
-
         Vector2[] projectedVertices = rotatedVertices
             .AsEnumerable()
             .Select(vertex => ProjectOntoSubspace(vertex, subspaceV, subspaceW))
@@ -103,29 +98,50 @@ public class Projection : MonoBehaviour
 
         for (int i = 0; i < projectedVertices.Length; i++)
         {
-            Vector2 projectedVertex = projectedVertices[i];
-
-            GameObject point = Instantiate(pointPrefab, (Vector3)projectedVertex, Quaternion.identity);
-
-            point.transform.SetParent(transform);
+            InstantiateVertex(projectedVertices[i], color);
         }
         
         for (int i = 0; i < edges.GetLength(0); i++)
         {
-            InstantiateEdge(projectedVertices[edges[i, 0]], projectedVertices[edges[i, 1]]);
+            InstantiateEdge(projectedVertices[edges[i, 0]], projectedVertices[edges[i, 1]], color);
         }
-
-        //InstantiateEdge(projectedVertices[projectedVertices.Length - 1], projectedVertices[0]);
     }
 
-    private void InstantiateEdge(Vector2 a, Vector2 b) 
+    public void Refresh() 
+    {
+        foreach (Transform child in transform) 
+        {
+            Destroy(child.gameObject);
+        }
+
+        RenderVertices(vertices, edges, Color.white);
+        RenderVertices(new Vector4[] { Vector4.zero, new Vector4(1, 0, 0, 0) }, new int[,] { {0, 1} }, Color.red);
+        RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 1, 0, 0) }, new int[,] { {0, 1} }, Color.green);
+        RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 1, 0) }, new int[,] { {0, 1} }, Color.blue);
+        RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 0, 1) }, new int[,] { {0, 1} }, Color.yellow);
+    }
+
+    private void InstantiateVertex(Vector2 vertex, Color color) 
+    {
+        GameObject point = Instantiate(pointPrefab, (Vector3)vertex, Quaternion.identity);
+        point.transform.SetParent(transform);
+
+        SpriteRenderer spriteRenderer = point.GetComponent<SpriteRenderer>();
+        spriteRenderer.color = color;
+    }
+
+    private void InstantiateEdge(Vector2 a, Vector2 b, Color color) 
     {
         GameObject line = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
+        line.transform.SetParent(transform);
+
         LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
         Vector3[] lines = new Vector3[] { (Vector3)a, (Vector3)b };
 
         lineRenderer.SetPosition(0, lines[0]);
         lineRenderer.SetPosition(1, lines[1]);
-        line.transform.SetParent(transform);
+
+        lineRenderer.startColor = color;
+        lineRenderer.endColor = color;
     }
 }

@@ -1590,14 +1590,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52a6343eea8a32e4bbbd006a399d0360, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointPrefab: {fileID: 2373238383366091936, guid: 69b32e6dc7ab7ba44bf081b1668a4df9, type: 3}
-  linePrefab: {fileID: 6671150360060560366, guid: fcb98ceae990b1d4f98c70bac7f01278, type: 3}
-  xySlider: {fileID: 0}
-  xzSlider: {fileID: 0}
-  xwSlider: {fileID: 0}
-  yzSlider: {fileID: 0}
-  ywSlider: {fileID: 0}
-  zwSlider: {fileID: 0}
+  pointPrefab: {fileID: 5750458494176749190, guid: 7558dbd52d7483542bf0f17a089c9f07, type: 3}
+  linePrefab: {fileID: 2207261734086859411, guid: c52728b6eea2c494d87b39558c8e2e97, type: 3}
+  xySlider: {fileID: 1368544001}
+  xzSlider: {fileID: 860316099}
+  xwSlider: {fileID: 349011175}
+  yzSlider: {fileID: 1408155589}
+  ywSlider: {fileID: 1876175755}
+  zwSlider: {fileID: 212967903}
 --- !u!114 &519420034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1615,6 +1615,19 @@ MonoBehaviour:
   xSlider: {fileID: 1368544001}
   ySlider: {fileID: 0}
   zSlider: {fileID: 0}
+  subspaceV: {x: 1, y: 0, z: 0.4}
+  subspaceW: {x: 0.65, y: 1, z: 0}
+  vertices:
+  - {x: 1, y: 1, z: 1}
+  - {x: -1, y: 1, z: 1}
+  - {x: -1, y: -1, z: 1}
+  - {x: 1, y: -1, z: 1}
+  - {x: 1, y: 1, z: 1}
+  - {x: 1, y: 1, z: -1}
+  - {x: -1, y: 1, z: -1}
+  - {x: -1, y: -1, z: -1}
+  - {x: 1, y: -1, z: -1}
+  - {x: 1, y: 1, z: -1}
 --- !u!1 &568116978
 GameObject:
   m_ObjectHideFlags: 0
