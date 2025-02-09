@@ -126,6 +126,8 @@ public class Projection : MonoBehaviour
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 1, 0) }, new int[,] { {0, 1} }, Color.blue);
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 0, 1) }, new int[,] { {0, 1} }, Color.yellow);
 
+        RenderVertices(new Vector4[] { Vector4.one * 0.5f }, new int[,] { } , Color.cyan);
+
         InstantiateVertex(Vector2.zero, Color.black, DistanceFromViewport(Vector4.zero), 1);
     }
 
