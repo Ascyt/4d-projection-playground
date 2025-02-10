@@ -129,7 +129,7 @@ public class Projection : MonoBehaviour
     }
     private Color GetVertexColor(Color color, float distance) 
     {
-        return Color.Lerp(color, distanceColor, 1 - 1f / (distance + 1));
+        return Color.Lerp(color, distanceColor, 1 - 1f / (distance * distance + 1));
     }
 
     public void Refresh() 
