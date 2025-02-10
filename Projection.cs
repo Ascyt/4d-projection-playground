@@ -154,6 +154,20 @@ public class Projection : MonoBehaviour
 
         InstantiateVertex(Vector2.zero, Color.black, DistanceFromViewport(Vector4.zero), 1);
     }
+    public void RandomizeRotation()
+    {
+        RandomizeSlider(xySlider);
+        RandomizeSlider(xzSlider);
+        RandomizeSlider(xwSlider);
+        RandomizeSlider(yzSlider);
+        RandomizeSlider(ywSlider);
+        RandomizeSlider(zwSlider);
+        Refresh();
+    }
+    private void RandomizeSlider(Slider slider)
+    {
+        slider.value = Random.Range(slider.minValue, slider.maxValue);
+    }
 
     private void InstantiateVertex(Vector2 vertex, Color color, float distance, int orderIncrease = 0) 
     {
