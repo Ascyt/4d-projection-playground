@@ -24,7 +24,7 @@ public class Projection : MonoBehaviour
     [SerializeField]
     private Slider zwSlider;
 
-    private Color distanceColor = new Color(0.125f, 0.125f, 0.125f, 1); 
+    private Color distanceColor = new Color(0f, 0f, 0f, 1f); 
 
     // 4D hypercube vertices
     Vector4[] vertices = new Vector4[] 
@@ -104,8 +104,9 @@ public class Projection : MonoBehaviour
         {
             float distanceA = DistanceFromViewport(rotatedVertices[edges[i, 0]]);
             float distanceB = DistanceFromViewport(rotatedVertices[edges[i, 1]]);
+            
             InstantiateEdge(projectedVertices[edges[i, 0]], projectedVertices[edges[i, 1]], 
-            GetVertexColor(color, distanceA), GetVertexColor(color, distanceB), Mathf.Min(distanceA, distanceB));
+                GetVertexColor(color, distanceA), GetVertexColor(color, distanceB), (distanceA + distanceB) / 2f);
         }
     }
     private Color GetVertexColor(Color color, float distance) 
@@ -153,8 +154,11 @@ public class Projection : MonoBehaviour
         lineRenderer.SetPosition(0, lines[0]);
         lineRenderer.SetPosition(1, lines[1]);
 
-        lineRenderer.startColor = fromColor;
-        lineRenderer.endColor = toColor;
+        Gradient gradient = new();
+        GradientColorKey[] colors = new[] { new GradientColorKey(fromColor, 0f), new GradientColorKey(toColor, 1f) };
+        GradientAlphaKey[] alphas = new[] { new GradientAlphaKey(1f, 0f) };
+        gradient.SetKeys(colors, alphas);
+        lineRenderer.colorGradient = gradient;
 
         lineRenderer.sortingOrder = (int)(-distance * 1000);
     }
