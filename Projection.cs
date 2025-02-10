@@ -86,7 +86,7 @@ public class Projection : MonoBehaviour
     {
         Refresh();
     }
-    private void RenderVertices(Vector4[] vertices, int[,] edges, Color color) 
+    private GameObject[] RenderVertices(Vector4[] vertices, int[,] edges, Color color) 
     {
         Vector4[] rotatedVertices = vertices
             .AsEnumerable()
@@ -98,10 +98,12 @@ public class Projection : MonoBehaviour
             .Select(vertex => ProjectOntoSubspace(vertex))
             .ToArray();
 
+        GameObject[] instantiatedVertices = new GameObject[vertices.Length];
+
         for (int i = 0; i < projectedVertices.Length; i++)
         {
             float distance = DistanceFromViewport(rotatedVertices[i]);
-            InstantiateVertex(projectedVertices[i], GetVertexColor(color, distance), distance);
+            instantiatedVertices[i] = InstantiateVertex(projectedVertices[i], GetVertexColor(color, distance), distance);
         }
         
         for (int i = 0; i < edges.GetLength(0); i++)
@@ -112,6 +114,8 @@ public class Projection : MonoBehaviour
             InstantiateEdge(projectedVertices[edges[i, 0]], projectedVertices[edges[i, 1]], 
                 GetVertexColor(color, distanceA), GetVertexColor(color, distanceB), (distanceA + distanceB) / 2f);
         }
+
+        return instantiatedVertices;
     }
     private Vector4 RotateVertex(Vector4 vertex)
     {
@@ -143,7 +147,9 @@ public class Projection : MonoBehaviour
 
         Vector4 point = Vector4.one * 0.5f;
 
-        RenderVertices(new Vector4[] { point }, new int[,] { } , Color.magenta);
+        GameObject pointObject = RenderVertices(new Vector4[] { point }, new int[,] { } , Color.magenta)[0];
+        pointObject.transform.localScale *= 2;
+        pointObject.transform.localScale = new Vector3(pointObject.transform.localScale.x, pointObject.transform.localScale.y, 1f);
 
         Vector4 pointPos = RotateVertex(point);
 
@@ -169,7 +175,7 @@ public class Projection : MonoBehaviour
         slider.value = Random.Range(slider.minValue, slider.maxValue);
     }
 
-    private void InstantiateVertex(Vector2 vertex, Color color, float distance, int orderIncrease = 0) 
+    private GameObject InstantiateVertex(Vector2 vertex, Color color, float distance, int orderIncrease = 0) 
     {
         GameObject point = Instantiate(pointPrefab, (Vector3)vertex, Quaternion.identity);
         point.transform.SetParent(transform);
@@ -178,9 +184,11 @@ public class Projection : MonoBehaviour
         spriteRenderer.color = color;
 
         spriteRenderer.sortingOrder = (int)(-distance * 1000) + orderIncrease;
+
+        return point;
     }
 
-    private void InstantiateEdge(Vector2 a, Vector2 b, Color fromColor, Color toColor, float distance) 
+    private GameObject InstantiateEdge(Vector2 a, Vector2 b, Color fromColor, Color toColor, float distance) 
     {
         GameObject line = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
         line.transform.SetParent(transform);
@@ -198,5 +206,7 @@ public class Projection : MonoBehaviour
         lineRenderer.colorGradient = gradient;
 
         lineRenderer.sortingOrder = (int)(-distance * 1000);
+
+        return line;
     }
 }
