@@ -1,4 +1,5 @@
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,7 +25,16 @@ public class Projection : MonoBehaviour
     [SerializeField]
     private Slider zwSlider;
 
-    private Color distanceColor = new Color(0f, 0f, 0f, 1f); 
+    [SerializeField]
+    private TextMeshProUGUI pointXLabel;
+    [SerializeField]
+    private TextMeshProUGUI pointYLabel;
+    [SerializeField]
+    private TextMeshProUGUI pointZLabel;
+    [SerializeField]
+    private TextMeshProUGUI pointWLabel;
+
+    private Color distanceColor = new Color(0f, 0f, 0f, 1f);
 
     // 4D hypercube vertices
     Vector4[] vertices = new Vector4[] 
@@ -76,17 +86,11 @@ public class Projection : MonoBehaviour
     {
         Refresh();
     }
-
     private void RenderVertices(Vector4[] vertices, int[,] edges, Color color) 
     {
         Vector4[] rotatedVertices = vertices
             .AsEnumerable()
-            .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.XY, xySlider.value))
-            .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.XZ, xzSlider.value))
-            .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.XW, xwSlider.value))
-            .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.YZ, yzSlider.value))
-            .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.YW, ywSlider.value))
-            .Select(vertex => vertex.Rotate(Rotation.PlaneOfRototation.ZW, zwSlider.value))
+            .Select(vertex => RotateVertex(vertex))
             .ToArray();
 
         Vector2[] projectedVertices = rotatedVertices
@@ -109,6 +113,16 @@ public class Projection : MonoBehaviour
                 GetVertexColor(color, distanceA), GetVertexColor(color, distanceB), (distanceA + distanceB) / 2f);
         }
     }
+    private Vector4 RotateVertex(Vector4 vertex)
+    {
+        return vertex
+            .Rotate(Rotation.PlaneOfRototation.XY, xySlider.value)
+            .Rotate(Rotation.PlaneOfRototation.XZ, xzSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.XW, xwSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.YZ, yzSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.YW, ywSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.ZW, zwSlider.value);
+    }
     private Color GetVertexColor(Color color, float distance) 
     {
         return Color.Lerp(color, distanceColor, 1 - 1f / (distance + 1));
@@ -124,10 +138,19 @@ public class Projection : MonoBehaviour
         RenderVertices(vertices, edges, Color.white);
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(1, 0, 0, 0) }, new int[,] { {0, 1} }, Color.red);
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 1, 0, 0) }, new int[,] { {0, 1} }, Color.green);
-        RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 1, 0) }, new int[,] { {0, 1} }, Color.blue);
+        RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 1, 0) }, new int[,] { {0, 1} }, new Color(0f, 0.5f, 1f));
         RenderVertices(new Vector4[] { Vector4.zero, new Vector4(0, 0, 0, 1) }, new int[,] { {0, 1} }, Color.yellow);
 
-        RenderVertices(new Vector4[] { Vector4.one * 0.5f }, new int[,] { } , Color.cyan);
+        Vector4 point = Vector4.one * 0.5f;
+
+        RenderVertices(new Vector4[] { point }, new int[,] { } , Color.magenta);
+
+        Vector4 pointPos = RotateVertex(point);
+
+        pointXLabel.SetText($"x: {pointPos.x}");
+        pointYLabel.SetText($"y: {pointPos.y}");
+        pointZLabel.SetText($"z: {pointPos.z}");
+        pointWLabel.SetText($"w: {pointPos.w}");
 
         InstantiateVertex(Vector2.zero, Color.black, DistanceFromViewport(Vector4.zero), 1);
     }
