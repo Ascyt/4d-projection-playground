@@ -1,4 +1,7 @@
 # 4D Projection Playground
+
+![Screenshot of project](readme-assets/screenshot-1.png)
+
 This is the **Assets** folder of the Unity project. Tested with Unity 2021.3.20f1 Personal. Everything is inside SampleScene. To run this you shouldn't need anything other than TextMeshPro.
 
 Check out the WebGL release on itch.io: https://ascyt.itch.io/4d-projection-playground
