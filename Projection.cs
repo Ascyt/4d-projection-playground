@@ -120,12 +120,12 @@ public class Projection : MonoBehaviour
     private Vector4 RotateVertex(Vector4 vertex)
     {
         return vertex
-            .Rotate(Rotation.PlaneOfRototation.XW, xwSlider.value)
-            .Rotate(Rotation.PlaneOfRototation.YW, ywSlider.value)
-            .Rotate(Rotation.PlaneOfRototation.ZW, zwSlider.value)
             .Rotate(Rotation.PlaneOfRototation.XY, xySlider.value)
             .Rotate(Rotation.PlaneOfRototation.XZ, xzSlider.value)
-            .Rotate(Rotation.PlaneOfRototation.YZ, yzSlider.value);
+            .Rotate(Rotation.PlaneOfRototation.XW, xwSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.YZ, yzSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.YW, ywSlider.value)
+            .Rotate(Rotation.PlaneOfRototation.ZW, zwSlider.value);
     }
     private Color GetVertexColor(Color color, float distance) 
     {
