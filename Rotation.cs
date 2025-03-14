@@ -6,12 +6,12 @@ public static class Rotation
 {
     public enum PlaneOfRototation
     {
+        XW,
+        YW,
+        ZW,
         XY,
         XZ,
-        XW,
-        YZ,
-        YW,
-        ZW
+        YZ
     }
 
     public static Vector4 Rotate(this Vector4 vector, PlaneOfRototation plane, float angle)
